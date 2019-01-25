@@ -29,10 +29,12 @@ object RequestCRAFlow {
         @Throws(FlowException::class)
         override fun call(): SignedTransaction {
             // Get the notary
+            println("Get the notary")
             val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
             // Build the transaction
             // 1. Query LoanRequestState by linearId
+            println("Query LoanRequestState by linearId")
             val vaultQueryCriteria = QueryCriteria.LinearStateQueryCriteria(listOf(ourIdentity), listOf(linearIdentifier), Vault.StateStatus.UNCONSUMED, null)
             val inputState = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteria).states.first()
 
@@ -42,24 +44,30 @@ object RequestCRAFlow {
             val isEligibleForLoan = false
 
             // Create the output state
+            println("Create the output state")
             val outputState = LoanVerificationState(loanAmount, customerName, ourIdentity, CreditRatingAgency, isEligibleForLoan, linearIdentifier)
 
             // Building the transaction
+            println("Building the transaction")
             val transactionBuilder = TransactionBuilder(notary).
                     addOutputState(outputState, LoanVerificationContract.LOANVERIFICATION_CONTRACT_ID).
-                    addCommand(LoanVerificationContract.Commands.SendForApproval(), ourIdentity.owningKey)
+                    addCommand(LoanVerificationContract.Commands.SendForApproval(), ourIdentity.owningKey, CreditRatingAgency.owningKey)
 
             // Verify transaction Builder
+            println("Verify transaction Builder")
             transactionBuilder.verify(serviceHub)
 
             // Sign the transaction
+            println("Sign the transaction")
             val partSignedTx = serviceHub.signInitialTransaction(transactionBuilder)
 
             // Send the state to the counterparty, and receive it back with their signature.
+            println ("Send the state to the counterparty, and receive it back with their signature.")
             val otherPartySession = initiateFlow(CreditRatingAgency)
             val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartySession)))
 
             // Notarise and record the transaction in both parties' vaults.
+            println("Notarise and record the transaction in both parties' vaults.")
             return subFlow(FinalityFlow(fullySignedTx))
         }
     }
