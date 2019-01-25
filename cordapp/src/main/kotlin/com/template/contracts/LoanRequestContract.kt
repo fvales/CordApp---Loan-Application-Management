@@ -18,6 +18,7 @@ class LoanRequestContract: Contract {
 
     override fun verify(tx: LedgerTransaction) {
         val command = tx.commands.requireSingleCommand<Commands>()
+
         when (command.value){
             is Commands.InitiateLoan -> verifyInitiateLoan(tx, command)
             is Commands.LoanResponse -> verifyLoanResponse(tx, command)
@@ -26,18 +27,18 @@ class LoanRequestContract: Contract {
 
     private fun verifyInitiateLoan(tx: LedgerTransaction, command: CommandWithParties<Commands>) {
         requireThat {
-//            "Transaction should have zero inputs" using (tx.inputs.isEmpty())
-//            "Transaction should have one output" using (tx.outputs.size == 1)
-//
-//            val outputState = tx.outputStates[0]
-//            "Output must be a LoanRequestState" using (outputState is LoanRequestState)
-//
-//            val loanRequestState = tx.outputStates[0] as LoanRequestState
-//
-//            "The Loan amount should be positive" using (loanRequestState.LoanAmount > 0)
-//
-//            "Finance agency should sign the transaction" using (command.signers.contains(loanRequestState.FinanceAgency.owningKey))
-//            "Bank should sign the transaction" using (command.signers.contains(loanRequestState.Bank.owningKey))
+            "Transaction should have zero inputs" using (tx.inputs.isEmpty())
+            "Transaction should have one output" using (tx.outputs.size == 1)
+
+            val outputState = tx.outputStates[0]
+            "Output must be a LoanRequestState" using (outputState is LoanRequestState)
+
+            val loanRequestState = outputState as LoanRequestState
+
+            "The Loan amount should be positive" using (loanRequestState.LoanAmount > 0)
+
+            "Finance agency should sign the transaction" using (command.signers.contains(outputState.FinanceAgency.owningKey))
+            "Bank should sign the transaction" using (command.signers.contains(outputState.Bank.owningKey))
         }
     }
 
@@ -56,7 +57,7 @@ class LoanRequestContract: Contract {
             val outputState = output as LoanRequestState
 
             "Finance agency should sign the transaction" using (command.signers.contains(inputState.FinanceAgency.owningKey))
-            "Bank should sign the transaction" using (command.signers.contains(outputState.FinanceAgency.owningKey))
+            "Bank should sign the transaction" using (command.signers.contains(outputState.Bank.owningKey))
         }
     }
 }

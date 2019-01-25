@@ -49,37 +49,45 @@ object InitiateLoanFlow {
             @Throws(FlowException::class)
             override fun call(): SignedTransaction {
                 // Get the notary
+                println("Get the notary")
                 val notary = serviceHub.networkMapCache.notaryIdentities.first()
-                progressTracker!!.currentStep = GENERATING_TRANSACTION
+                // progressTracker!!.currentStep = GENERATING_TRANSACTION
                 // Create the output state
+                println("Create the output state")
                 val outputState = LoanRequestState(LoanAmount, CustomerName, Bank, ourIdentity, false, UniqueIdentifier())
 
                 // Building the transaction
+                println("Building the transaction")
                 val transactionBuilder = TransactionBuilder(notary).
                         addOutputState(outputState, LoanRequestContract.LOANREQUEST_CONTRACT_ID).
-                        addCommand(LoanRequestContract.Commands.InitiateLoan(), ourIdentity.owningKey)
+                        addCommand(LoanRequestContract.Commands.InitiateLoan(), ourIdentity.owningKey, Bank.owningKey)
 
                 // Verify transaction Builder
-                progressTracker.currentStep = VERIFYING_TRANSACTION
+                println("Verify transaction Builder")
+                // progressTracker.currentStep = VERIFYING_TRANSACTION
                 transactionBuilder.verify(serviceHub)
 
                 // Sign the transaction
-                progressTracker.currentStep = GATHERING_SIGS
-                progressTracker.currentStep = SIGNING_TRANSACTION
+                println("Sign the transaction")
+                // progressTracker.currentStep = GATHERING_SIGS
+                // progressTracker.currentStep = SIGNING_TRANSACTION
                 val partSignedTx = serviceHub.signInitialTransaction(transactionBuilder)
 
                 // Send the state to the counterparty, and receive it back with their signature.
+                println("Send the state to the counterparty, and receive it back with their signature.")
                 val otherPartySession = initiateFlow(Bank)
-                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartySession), GATHERING_SIGS.childProgressTracker()))
+                val fullySignedTx = subFlow(CollectSignaturesFlow(partSignedTx, setOf(otherPartySession)))
 
                 // Notarise and record the transaction in both parties' vaults.
-                progressTracker.currentStep = FINALISING_TRANSACTION
+                println("Notarise and record the transaction in both parties' vaults.")
+                // progressTracker.currentStep = FINALISING_TRANSACTION
                 return subFlow(FinalityFlow(fullySignedTx))
             }
         }
 
         @InitiatedBy(Initiator::class)
         class Acceptor(val otherPartyFlow: FlowSession) : FlowLogic<SignedTransaction>() {
+
             @Suspendable
             @Throws(FlowException::class)
             override fun call(): SignedTransaction {
@@ -91,7 +99,11 @@ object InitiateLoanFlow {
                         "Loan amount should be positive" using (loanRequestState.LoanAmount > 0)
                     }
                 }
+//                val txId = subFlow(signTransactionFlow).id
+//
+//                return subFlow(ReceiveFinalityFlow(otherPartyFlow, expectedTxId = txId))
                 return subFlow(signTransactionFlow)
             }
+
         }
     }
