@@ -48,7 +48,7 @@ class LoanRequestStateTest{
     }
 
     @Test
-    fun tokenStateHasTwoParticipantsTheIssuerAndTheOwner() {
+    fun loanRequestStateHasTwoParticipantsTheBankAndTheFinanceAgency() {
         var loanRequestState = LoanRequestState(100,
                 "Freeda",
                 Bank,
