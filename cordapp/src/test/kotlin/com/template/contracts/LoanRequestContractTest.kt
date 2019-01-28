@@ -83,7 +83,7 @@ class LoanRequestContractTest {
         }
     }
     @Test
-    fun loanRequestContractRequiresTheTransactionsOutputToBeATokenState() {
+    fun loanRequestContractRequiresTheTransactionsOutputToBeALoanRequestState() {
         ledgerServices.ledger {
             transaction {
                 // Has wrong output type, will fail.

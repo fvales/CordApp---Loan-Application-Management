@@ -1,7 +1,6 @@
 package com.template.flows
 
 import co.paralleluniverse.fibers.Suspendable
-import com.template.contracts.LoanRequestContract
 import com.template.contracts.LoanVerificationContract
 import com.template.states.LoanVerificationState
 import net.corda.core.contracts.UniqueIdentifier

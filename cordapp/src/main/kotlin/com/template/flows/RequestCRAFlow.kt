@@ -35,13 +35,13 @@ object RequestCRAFlow {
             // Build the transaction
             // 1. Query LoanRequestState by linearId
             println("Query LoanRequestState by linearId")
-            val vaultQueryCriteria = QueryCriteria.LinearStateQueryCriteria(listOf(ourIdentity), listOf(linearIdentifier), Vault.StateStatus.UNCONSUMED, null)
-            val inputState = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteria).states.first()
+            val vaultQueryCriteriaBank = QueryCriteria.LinearStateQueryCriteria(listOf(ourIdentity), listOf(linearIdentifier), Vault.StateStatus.UNCONSUMED, null)
+            val inputState = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteriaBank).states.first()
 
             /*** Getting the amount, companyName and loan-eligibility from the vault of Previous State  */
             val loanAmount = inputState.state.data.LoanAmount
             val customerName = inputState.state.data.CustomerName
-            val isEligibleForLoan = false
+            val isEligibleForLoan = inputState.state.data.isEligibleForLoan
 
             // Create the output state
             println("Create the output state")

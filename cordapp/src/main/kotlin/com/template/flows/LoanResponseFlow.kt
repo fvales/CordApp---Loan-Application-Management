@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import com.template.contracts.LoanRequestContract
 import com.template.states.LoanRequestState
 import com.template.states.LoanVerificationState
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -33,19 +34,31 @@ object LoanResponseFlow {
             println("Get the notary")
             val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
+
             // Build the transaction
             // 1. Query LoanRequestState by linearId
             println("Query LoanRequestState by linearId")
             val vaultQueryCriteria = QueryCriteria.LinearStateQueryCriteria(listOf(ourIdentity), listOf(linearIdentifier), Vault.StateStatus.UNCONSUMED, null)
             val inputState = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteria).states.first()
 
+            var loanVerificationState: StateAndRef<LoanVerificationState>? = null
+            val loanVerificationStateList = serviceHub.vaultService.queryBy(LoanVerificationState::class.java, vaultQueryCriteria).states
+
+            if (loanVerificationStateList != null && !loanVerificationStateList!!.isEmpty()) {
+                loanVerificationState = loanVerificationStateList!!.get(0)
+            } else {
+                throw FlowException("Exception while fetching loanId : " + linearIdentifier + "size " + loanVerificationStateList!!.size)
+            }
+
             // 2. Create new LoanRequest state
             println("Create new LoanRequest state")
-            val linearIdLoanReqDataState = inputState.state.data.linearId
-            val isEligibleForLoan = inputState.state.data.isEligibleForLoan
+            val linearIdLoanReqDataState = linearIdentifier
+            val isEligibleForLoan = loanVerificationState.state.data.isEligibleForLoan
             val amount = inputState.state.data.LoanAmount
             val customerName = inputState.state.data.CustomerName
-
+            println (linearIdLoanReqDataState)
+            println (isEligibleForLoan)
+            println (customerName)
             val outputState = LoanRequestState(amount, customerName, ourIdentity, FinanceAgency, isEligibleForLoan, linearIdLoanReqDataState)
 
             // 3. Add command, signers as Bank and FinanceAgency
