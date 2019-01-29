@@ -1,9 +1,12 @@
 package com.template.states
 
+import com.template.Schema.LoanVerificationSchemaV1
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
+import net.corda.core.schemas.MappedSchema
+import net.corda.core.schemas.PersistentState
 
 /**
  * The state object recording LoanRequestState between Credit rating Agency and Bank.
@@ -26,6 +29,22 @@ data class LoanVerificationState(val LoanAmount: Int,
 
     /** The public keys of the involved parties. */
     override val participants get() = listOf(Bank, CreditRatingAgency)
+
+    fun generateMappedObject(schema: MappedSchema): PersistentState {
+        return when (schema) {
+            is LoanVerificationSchemaV1 -> LoanVerificationSchemaV1.PersistentIOU(
+                    this.LoanAmount,
+                    this.CustomerName,
+                    this.Bank.name.toString(),
+                    this.CreditRatingAgency.name.toString(),
+                    this.isEligibleForLoan,
+                    this.linearId.id
+            )
+            else -> throw IllegalArgumentException("Unrecognised schema $schema")
+        }
+    }
+
+    fun supportedSchemas(): Iterable<MappedSchema> = listOf(LoanVerificationSchemaV1)
 
 }
 
