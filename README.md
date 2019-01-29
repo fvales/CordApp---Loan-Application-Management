@@ -15,11 +15,10 @@ Finance agency should not see what Bank and Credit rating agency communicate.
 
  Markup : * Finance Agency should send the loan application to the bank which contains Individual name/company name and amount (Loan                  Amount).
           * Bank should receive the application and forward it to Credit rating agency to check the eligibility of loan applicant/                    loan application (Example CIBIL score of an applicant).
-          *	Credit rating agency should respond back to bank with the eligibility of the loan application.
-          *	The credit rating agency could check loan eligibility through an Oracle service.
-          *	Bank should receive the eligibility and decide whether to lend the loan, acknowledging its response to the Finance agency.
-          *	Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault states             with specific field values.
-
+          * Credit rating agency should respond back to bank with the eligibility of the loan application.
+          * The credit rating agency could check loan eligibility through an Oracle service.
+          * Bank should receive the eligibility and decide whether to lend the loan, acknowledging its response to the Finance agency.
+          * Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values.
 
 # CorDapp Template - Kotlin
 
