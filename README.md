@@ -22,11 +22,26 @@
 * Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values
 
 
-** On FinanceAgency and Bank shell
-run vaultquery contractStateType: com.template.states.LoanRequeststate
+** On FinanceAgency and Bank shell:
+* run vaultquery contractStateType: com.template.states.LoanRequeststate
 
 ** On FinanceAgency and Bank shell
-run vaultquery contractStateType: com.template.states.LoanVerificationstate
+* run vaultquery contractStateType: com.template.states.LoanVerificationstate
+
+** FinanceAgency shell:
+* flow start InitiateLoanFlow Bank: "Bank", CustomerName: "JETSAIRWAYS", LoanAmount: 100
+
+** Bank Shell:
+* flow start RequestCRAFlow CreditRatingAgency: "CreditRatingAgnecy", linearIdentifier: "*Enter linear id*"
+
+** CreditRatingAgency shell
+* flow start CRAResponse Bank: "Bank", linearIdentifier: "*Enter linear id*"
+
+** Bank shell
+* flow start LoanResponseFlow FinanceAgency: "FinanceAgency", linearIdentifier: "*Enter linear id*"
+
+
+
 
 
 # CorDapp Template - Kotlin
