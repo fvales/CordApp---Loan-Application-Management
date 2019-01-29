@@ -2,6 +2,15 @@
   <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
 </p>
 
+**Problem Statement
+
+Implement a CorDapp to digitize the process of loan application approval based on a credit check.
+A finance agency sends loan applications to a Bank. 
+The Bank checks the credit worthiness of the borrower through a credit rating agency and accordingly approves or rejects the loan.
+The CorDapp should help to maintain a trail of all the activities happening for a loan application.
+Communication between Bank and credit rating agency or any data exchanged between Bank and credit rating agency should remain private to Finance Agency.
+Finance agency should not see what Bank and Credit rating agency communicate.
+
 # CorDapp Template - Kotlin
 
 Welcome to the Kotlin CorDapp template. The CorDapp template is a stubbed-out CorDapp that you can use to bootstrap 
