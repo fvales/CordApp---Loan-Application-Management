@@ -2,7 +2,7 @@
   <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
 </p>
 
-**Problem Statement
+# Problem Statement
 
 Implement a CorDapp to digitize the process of loan application approval based on a credit check.
 A finance agency sends loan applications to a Bank. 
