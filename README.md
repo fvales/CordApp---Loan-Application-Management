@@ -25,7 +25,7 @@
 ** On FinanceAgency and Bank shell:
 * run vaultquery contractStateType: com.template.states.LoanRequeststate
 
-** On FinanceAgency and Bank shell
+** On CreditRatingAgency and Bank shell
 * run vaultquery contractStateType: com.template.states.LoanVerificationstate
 
 ** FinanceAgency shell:
