@@ -2,23 +2,25 @@
   <img src="https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png" alt="Corda" width="500">
 </p>
 
+
 # Problem Statement
 
-Implement a CorDapp to digitize the process of loan application approval based on a credit check.
-A finance agency sends loan applications to a Bank. 
-The Bank checks the credit worthiness of the borrower through a credit rating agency and accordingly approves or rejects the loan.
-The CorDapp should help to maintain a trail of all the activities happening for a loan application.
-Communication between Bank and credit rating agency or any data exchanged between Bank and credit rating agency should remain private to Finance Agency.
-Finance agency should not see what Bank and Credit rating agency communicate.
+* Implement a CorDapp to digitize the process of loan application approval based on a credit check.
+* A finance agency sends loan applications to a Bank. 
+* The Bank checks the credit worthiness of the borrower through a credit rating agency and accordingly approves or rejects the             loan.
+* The CorDapp should help to maintain a trail of all the activities happening for a loan application.
+* Communication between Bank and credit rating agency or any data exchanged between Bank and credit rating agency should remain            private to Finance Agency.
+* Finance agency should not see what Bank and Credit rating agency communicate.
 
 # Operations
 
- Markup : * Finance Agency should send the loan application to the bank which contains Individual name/company name and amount (Loan                  Amount).
-          * Bank should receive the application and forward it to Credit rating agency to check the eligibility of loan applicant/                    loan application (Example CIBIL score of an applicant).
-          * Credit rating agency should respond back to bank with the eligibility of the loan application.
-          * The credit rating agency could check loan eligibility through an Oracle service.
-          * Bank should receive the eligibility and decide whether to lend the loan, acknowledging its response to the Finance agency.
-          * Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values.
+* Finance Agency should send the loan application to the bank which contains Individual name/company name and amount (Loan                 Amount).
+* Bank should receive the application and forward it to Credit rating agency to check the eligibility of loan applicant/                    loan application (Example CIBIL score of an applicant).
+* Credit rating agency should respond back to bank with the eligibility of the loan application.
+* The credit rating agency could check loan eligibility through an Oracle service.
+* Bank should receive the eligibility and decide whether to lend the loan, acknowledging its response to the Finance agency.
+* Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values
+
 
 # CorDapp Template - Kotlin
 
