@@ -22,6 +22,13 @@
 * Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values
 
 
+** On FinanceAgency and Bank shell
+run vaultquery contractStateType: com.template.states.LoanRequeststate
+
+** On FinanceAgency and Bank shell
+run vaultquery contractStateType: com.template.states.LoanVerificationstate
+
+
 # CorDapp Template - Kotlin
 
 Welcome to the Kotlin CorDapp template. The CorDapp template is a stubbed-out CorDapp that you can use to bootstrap 
