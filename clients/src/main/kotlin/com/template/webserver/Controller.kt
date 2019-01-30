@@ -4,30 +4,7 @@ package com.template.webserver
 
 import com.template.flows.InitiateLoanFlow
 import com.template.states.LoanRequestState
-import net.corda.core.identity.Party
-/*
-import com.template.flows.InitiateLoanFlow
-import com.template.flows.LoanResponseFlow
-import com.template.contracts.LoanRequestContract
-import com.template.contracts.LoanVerificationContract
-import com.template.states.LoanVerificationState
-import com.template.Schema.LoanRequestSchemaV1
-import com.template.Schema.LoanVerificationSchemaV1
-*/
-
-import net.corda.core.messaging.CordaRPCOps
-import net.corda.core.utilities.OpaqueBytes
 import net.corda.core.utilities.getOrThrow
-import java.util.*
-/*import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
-import javax.ws.rs.core.Response.Status.BAD_REQUEST
-import javax.ws.rs.core.Response.Status.CREATED*/
-
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -37,13 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
-/*import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces*/
-
-/*import javax.enterprise.inject.Produces
-import javax.ws.rs.GET
-import javax.ws.rs.Path*/
 
 /**
  * Define your API endpoints here.
@@ -67,19 +37,17 @@ class Controller(rpc: NodeRPCConnection) {
 
     // Node info
     @GetMapping(value = "/me", produces = arrayOf("text/plain"))
-    fun me():String
-    {
-        return(myIdentity.name.toString())
+    fun me(): String {
+        return (myIdentity.name.toString())
     }
 
-     //Peer info
+    //Peer info
     @GetMapping(value = "/peers", produces = arrayOf("text/plain"))
     fun peers(): String {
         return mapOf("peers" to proxy.networkMapSnapshot()
                 .filter { nodeInfo -> nodeInfo.legalIdentities.first() != myIdentity }
                 .map { it.legalIdentities.first().name.organisation }).toString()
     }
-
 
 
     //LonRequestState
@@ -93,8 +61,8 @@ class Controller(rpc: NodeRPCConnection) {
     fun InitiateLoanFlow(
             @RequestParam("LoanAmount") LoanAmount: Int,
             @RequestParam("CustomerName") CustomerName: String,
-            @RequestParam("party") party : String
-            ): String {
+            @RequestParam("party") party: String
+    ): String {
 
         // 1. Get party objects for the counterparty.
         val Bank = proxy.partiesFromName(party, exactMatch = false).singleOrNull()
@@ -121,10 +89,9 @@ class Controller(rpc: NodeRPCConnection) {
         return status.toString()
     }
 
-
-*//*@GET
-@Path("LoanAmount")
-@Produces(MediaType.APPLICATION_JSON)
-fun LoanAmount() = proxy.vaultQuery(LoanRequestState::class.java).LoanAmount*//*
-*/
 }
+//@GET
+//@Path("LoanAmount")
+//@Produces(MediaType.APPLICATION_JSON)
+//fun LoanAmount() = proxy.vaultQuery(LoanRequestState::class.java).LoanAmount*//*
+

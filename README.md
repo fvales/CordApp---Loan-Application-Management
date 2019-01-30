@@ -21,6 +21,7 @@
 * Bank should receive the eligibility and decide whether to lend the loan, acknowledging its response to the Finance agency.
 * Finance agency should be able to see approved loan applications. Hint: Check use of queryable states to filter vault                     states with specific field values
 
+//Flow
 
 ** On FinanceAgency and Bank shell:
 * run vaultquery contractStateType: com.template.states.LoanRequeststate
@@ -41,8 +42,15 @@
 * flow start LoanResponseFlow FinanceAgency: "FinanceAgency", linearIdentifier: "*Enter linear id*"
 
 
+** On FinanceAgency and Bank shell:
+* run vaultquery contractStateType: com.template.states.LoanRequeststate
 
+// Rurnning API
 
+1. Run the servers in /clients/build.gradle
+
+2. Do the call in postman client
+e.g localhost:10013/me
 
 # CorDapp Template - Kotlin
 
