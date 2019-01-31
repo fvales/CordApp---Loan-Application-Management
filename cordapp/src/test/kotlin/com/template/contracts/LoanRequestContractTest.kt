@@ -27,7 +27,7 @@ class LoanRequestContractTest {
         assert((LoanRequestContract() is Contract))
     }
     @Test
-    fun loanRequestContractRequiresZeroInputsInTheTransaction() {
+    fun loanRequestContractInitiateLoanCommandRequiresZeroInputsInTheTransaction() {
         ledgerServices.ledger {
             transaction {
                 // Has an input, will fail.
@@ -45,7 +45,26 @@ class LoanRequestContractTest {
         }
     }
     @Test
-    fun loanRequestContractRequiresOneOutputInTheTransaction() {
+    fun loanRequestContractLoanResponseCommandRequiresOneInputInTheTransaction() {
+        ledgerServices.ledger {
+            transaction {
+                // Has an input, will verify.
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                verifies()
+
+            }
+            transaction{
+                // Has no input, will fail.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                fails()
+            }
+        }
+    }
+    @Test
+    fun loanRequestContractInitiateLoanCommandRequiresOneOutputInTheTransaction() {
         ledgerServices.ledger {
             transaction {
                 // Has two outputs, will fail.
@@ -58,6 +77,26 @@ class LoanRequestContractTest {
                 // Has one output, will verify.
                 output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
                 command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
+                verifies()
+            }
+        }
+    }
+    @Test
+    fun loanRequestContractLoanResponseCommandRequiresOneOutputInTheTransaction() {
+        ledgerServices.ledger {
+            transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                // Has two outputs, will fail.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                fails()
+            }
+            transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                // Has one output, will verify.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
                 verifies()
             }
         }
@@ -83,18 +122,56 @@ class LoanRequestContractTest {
         }
     }
     @Test
-    fun loanRequestContractRequiresTheTransactionsOutputToBeALoanRequestState() {
+    fun loanRequestContractLoanResponseCommandRequiresTheTransactionsOutputToBeALoanRequestState() {
         ledgerServices.ledger {
             transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
                 // Has wrong output type, will fail.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, DummyState())
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                fails()
+            }
+            transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                // Has correct output type, will verify.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                verifies()
+            }
+        }
+    }
+    @Test
+    fun loanRequestContractInitiateLoanCommandRequiresTheTransactionsOutputToBeALoanRequestState() {
+        ledgerServices.ledger {
+            transaction {
+                // Has wrong Input type, will fail.
                 output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, DummyState())
                 command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
                 fails()
             }
             transaction {
-                // Has correct output type, will verify.
+                // Has correct Input type, will verify.
                 output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
                 command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
+                verifies()
+            }
+        }
+    }
+    @Test
+    fun loanRequestContractLoanResponseCommandRequiresTheTransactionsInputToBeALoanRequestState() {
+        ledgerServices.ledger {
+            transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, DummyState())
+                // Has wrong output type, will fail.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
+                fails()
+            }
+            transaction {
+                input(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                // Has correct output type, will verify.
+                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
+                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.LoanResponse())
                 verifies()
             }
         }
@@ -165,35 +242,17 @@ class LoanRequestContractTest {
         }
     }
     @Test
-    fun loanRequestContractRequiresTheIssuerToBeARequiredSignerInTheTransaction() {
-        val loanRequestStateWhereFAInitiatesLoan = LoanRequestState(100,
-                "Freeda",
-                Bank,
-                FinanceAgency,
-                false,
-                UniqueIdentifier())
+    fun loanRequestContractInitaiteLoanCommandRequiresBothThePartiesAsRequiredSignerInTheTransaction() {
         ledgerServices.ledger {
-            transaction {
-                // Issuer is not a required signer, will fail.
-                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
-                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
-                fails()
-            }
-            transaction {
-                // Issuer is also not a required signer, will fail.
-                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestStateWhereFAInitiatesLoan)
-                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
-                fails()
-            }
+//            transaction {
+//                // Issuer is also not a required signer, will fail.
+//                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestStateWhereFAInitiatesLoan)
+//                command(listOf(Bank.owningKey, FinanceAgency.owningKey), LoanRequestContract.Commands.InitiateLoan())
+//                fails()
+//            }
             transaction {
                 // Issuer is a required signer, will verify.
                 output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestState)
-                command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
-                verifies()
-            }
-            transaction {
-                // FinanceAgency is also a required signer, will verify.
-                output(LoanRequestContract.LOANREQUEST_CONTRACT_ID, loanRequestStateWhereFAInitiatesLoan)
                 command(listOf(FinanceAgency.owningKey,Bank.owningKey), LoanRequestContract.Commands.InitiateLoan())
                 verifies()
             }
