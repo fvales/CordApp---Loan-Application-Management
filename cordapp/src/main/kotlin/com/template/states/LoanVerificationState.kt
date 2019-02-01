@@ -7,6 +7,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
 import net.corda.core.schemas.MappedSchema
 import net.corda.core.schemas.PersistentState
+import net.corda.core.schemas.QueryableState
 
 /**
  * The state object recording LoanRequestState between Credit rating Agency and Bank.
@@ -25,12 +26,12 @@ data class LoanVerificationState(val LoanAmount: Int,
                             val Bank: Party,
                             val CreditRatingAgency: Party,
                             val isEligibleForLoan: Boolean = false,
-                            override val linearId: UniqueIdentifier = UniqueIdentifier()): LinearState {
+                            override val linearId: UniqueIdentifier = UniqueIdentifier()): LinearState, QueryableState {
 
     /** The public keys of the involved parties. */
     override val participants get() = listOf(Bank, CreditRatingAgency)
 
-    fun generateMappedObject(schema: MappedSchema): PersistentState {
+    override fun generateMappedObject(schema: MappedSchema): PersistentState {
         return when (schema) {
             is LoanVerificationSchemaV1 -> LoanVerificationSchemaV1.PersistentIOU(
                     this.LoanAmount,
@@ -44,7 +45,6 @@ data class LoanVerificationState(val LoanAmount: Int,
         }
     }
 
-    fun supportedSchemas(): Iterable<MappedSchema> = listOf(LoanVerificationSchemaV1)
-
+    override fun supportedSchemas(): Iterable<MappedSchema> = listOf(LoanVerificationSchemaV1)
 }
 

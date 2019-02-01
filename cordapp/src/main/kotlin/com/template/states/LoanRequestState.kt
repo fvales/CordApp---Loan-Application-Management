@@ -48,5 +48,8 @@ data class LoanRequestState(val LoanAmount: Int,
 
     override fun supportedSchemas(): Iterable<MappedSchema> = listOf(LoanRequestSchemaV1)
 
+
+
+
 }
 
