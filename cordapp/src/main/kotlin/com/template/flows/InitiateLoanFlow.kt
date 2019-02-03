@@ -54,7 +54,7 @@ object InitiateLoanFlow {
                 // progressTracker!!.currentStep = GENERATING_TRANSACTION
                 // Create the output state
                 println("Create the output state")
-                val outputState = LoanRequestState(LoanAmount, CustomerName, Bank, ourIdentity, false, UniqueIdentifier())
+                val outputState = LoanRequestState(LoanAmount, CustomerName, Bank, ourIdentity, "INITIATED", UniqueIdentifier())
 
                 // Building the transaction
                 println("Building the transaction")

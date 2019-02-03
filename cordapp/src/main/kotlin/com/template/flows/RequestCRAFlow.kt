@@ -5,6 +5,7 @@ import com.template.contracts.LoanRequestContract
 import com.template.contracts.LoanVerificationContract
 import com.template.states.LoanRequestState
 import com.template.states.LoanVerificationState
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -28,6 +29,7 @@ object RequestCRAFlow {
         @Suspendable
         @Throws(FlowException::class)
         override fun call(): SignedTransaction {
+            val inputState: StateAndRef<LoanRequestState>
             // Get the notary
             println("Get the notary")
             val notary = serviceHub.networkMapCache.notaryIdentities.first()
@@ -36,16 +38,20 @@ object RequestCRAFlow {
             // 1. Query LoanRequestState by linearId
             println("Query LoanRequestState by linearId")
             val vaultQueryCriteriaBank = QueryCriteria.LinearStateQueryCriteria(listOf(ourIdentity), listOf(linearIdentifier), Vault.StateStatus.UNCONSUMED, null)
-            val inputState = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteriaBank).states.first()
+            val loanRequestStateList = serviceHub.vaultService.queryBy<LoanRequestState>(vaultQueryCriteriaBank).states
 
+            if (loanRequestStateList != null && !loanRequestStateList!!.isEmpty()) {
+                inputState = loanRequestStateList.first()
+            } else {
+                throw FlowException("Exception while fetching loanId : " + linearIdentifier + "size " + loanRequestStateList!!.size)
+            }
             /*** Getting the amount, companyName and loan-eligibility from the vault of Previous State  */
             val loanAmount = inputState.state.data.LoanAmount
             val customerName = inputState.state.data.CustomerName
-            val isEligibleForLoan = inputState.state.data.isEligibleForLoan
 
             // Create the output state
             println("Create the output state")
-            val outputState = LoanVerificationState(loanAmount, customerName, ourIdentity, CreditRatingAgency, isEligibleForLoan, linearIdentifier)
+            val outputState = LoanVerificationState(loanAmount, customerName, ourIdentity, CreditRatingAgency, false, linearIdentifier)
 
             // Building the transaction
             println("Building the transaction")

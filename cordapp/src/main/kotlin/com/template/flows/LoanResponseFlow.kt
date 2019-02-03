@@ -29,7 +29,7 @@ object LoanResponseFlow {
         @Suspendable
         @Throws(FlowException::class)
         override fun call(): SignedTransaction {
-
+            val outputState: LoanRequestState
             // Get the notary
             println("Get the notary")
             val notary = serviceHub.networkMapCache.notaryIdentities.first()
@@ -59,7 +59,13 @@ object LoanResponseFlow {
             println (linearIdLoanReqDataState)
             println (isEligibleForLoan)
             println (customerName)
-            val outputState = LoanRequestState(amount, customerName, ourIdentity, FinanceAgency, isEligibleForLoan, linearIdLoanReqDataState)
+
+
+            if (isEligibleForLoan){
+                outputState = LoanRequestState(amount, customerName, ourIdentity, FinanceAgency, "APPROVED", linearIdLoanReqDataState)
+            } else {
+                outputState = LoanRequestState(amount, customerName, ourIdentity, FinanceAgency, "REJECTED", linearIdLoanReqDataState)
+            }
 
             // 3. Add command, signers as Bank and FinanceAgency
             println("Add command, signers as Bank and FinanceAgency")
