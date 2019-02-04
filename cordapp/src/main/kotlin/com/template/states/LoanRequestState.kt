@@ -16,8 +16,8 @@ import net.corda.core.schemas.QueryableState
  *
  * @param LoanAmount the value of the loan amount.
  * @CustomerName  Individual name/company name.
- * @param Bank the party issuing the loan application.
- * @param FinanceAgency the party receiving the loan application.
+ * @param FinanceAgency the party initiating the loan application.
+ * @param Bank the party receiving the loan application.
  */
 
 
@@ -25,7 +25,7 @@ data class LoanRequestState(val LoanAmount: Int,
                             val CustomerName: String,
                             val Bank: Party,
                             val FinanceAgency: Party,
-                            val isEligibleForLoan: Boolean = false,
+                            val loan_status: String = "INITIATED",
                     override val linearId: UniqueIdentifier = UniqueIdentifier()): LinearState, QueryableState {
     //constructor() : this()
 
@@ -39,7 +39,7 @@ data class LoanRequestState(val LoanAmount: Int,
                     this.CustomerName,
                     this.Bank.name.toString(),
                     this.FinanceAgency.name.toString(),
-                    this.isEligibleForLoan,
+                    this.loan_status,
                     this.linearId.id
             )
             else -> throw IllegalArgumentException("Unrecognised schema $schema")

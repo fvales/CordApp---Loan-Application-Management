@@ -19,7 +19,7 @@ class LoanRequestContractTest {
             "Freeda",
             Bank,
             FinanceAgency,
-            false,
+            "INITIALISED",
             UniqueIdentifier())
 
     @Test
@@ -182,19 +182,19 @@ class LoanRequestContractTest {
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier())
         val negativeLoanRequestState = LoanRequestState(-1,
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier())
         val positiveLoanRequestState = LoanRequestState(100,
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier())
         ledgerServices.ledger {
             transaction {

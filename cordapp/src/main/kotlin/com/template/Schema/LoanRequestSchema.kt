@@ -36,7 +36,7 @@ object LoanRequestSchemaV1 : MappedSchema(
             var FinanceAgencyName: String,
 
             @Column(name = "isEligibleForLoan")
-            var isEligibleForLoan: Boolean,
+            var loan_status: String,
 
             @Column(name = "linear_id")
             var linearId: UUID

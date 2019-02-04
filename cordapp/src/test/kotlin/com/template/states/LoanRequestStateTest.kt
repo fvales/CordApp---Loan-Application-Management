@@ -19,7 +19,7 @@ class LoanRequestStateTest{
         "Freeda",
         Bank,
         FinanceAgency,
-        false,
+        "INITIALISED",
         UniqueIdentifier())
     }
 
@@ -29,7 +29,7 @@ class LoanRequestStateTest{
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier())
         assertEquals(Bank, loanRequestState.Bank)
         assertEquals(FinanceAgency, loanRequestState.FinanceAgency)
@@ -43,7 +43,7 @@ class LoanRequestStateTest{
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier()) is ContractState)
     }
 
@@ -53,7 +53,7 @@ class LoanRequestStateTest{
                 "Freeda",
                 Bank,
                 FinanceAgency,
-                false,
+                "INITIALISED",
                 UniqueIdentifier())
         assertEquals(2, loanRequestState.participants.size)
         assert(loanRequestState.participants.contains(Bank))
