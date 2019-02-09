@@ -3,9 +3,11 @@ package com.template.flows
 import co.paralleluniverse.fibers.Suspendable
 import com.template.contracts.LoanVerificationContract
 import com.template.states.LoanVerificationState
+import net.corda.core.contracts.Command
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.vault.QueryCriteria
@@ -13,6 +15,7 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.node.services.queryBy
+import java.util.function.Predicate
 
 object CRAResponse  {
     @InitiatingFlow
@@ -45,24 +48,42 @@ object CRAResponse  {
             println(linearIdLoanReqDataState)
             println(amount)
             println(customerName)
-            val outputState: LoanVerificationState
 
-            val contains = values.contains(customerName)
+            // val contains = values.contains(customerName)
 
-            /** Setting the loanEligibility flag in the state's vault  */
-            println("Setting the loanEligibility flag in the state's vault")
-            if (contains) {
-                outputState = LoanVerificationState(amount, customerName, Bank, ourIdentity,true, linearIdLoanReqDataState)
-            } else {
-                outputState = LoanVerificationState(amount, customerName, Bank, ourIdentity, false, linearIdLoanReqDataState)
+
+            //get cibil rating from oracle
+            val oracleName = CordaX500Name("Oracle", "New York","US")
+            val oracle = serviceHub.networkMapCache.getNodeByLegalName(oracleName)?.legalIdentities?.first()
+                    ?: throw IllegalArgumentException("Requested oracle $oracleName not found on network.")
+
+            val cibilRating = subFlow(CRAQueryFlow(oracle,customerName))
+
+            println(cibilRating)
+
+            var loanEligibility = false
+            if (cibilRating > 600){
+                loanEligibility = true
             }
-            println(contains)
+
+            val outputState = LoanVerificationState(amount, customerName, Bank, ourIdentity,loanEligibility, linearIdLoanReqDataState)
+
+//            /** Setting the loanEligibility flag in the state's vault  */
+//            println("Setting the loanEligibility flag in the state's vault")
+//            if (contains) {
+//                outputState = LoanVerificationState(amount, customerName, Bank, ourIdentity,loanEligibility, linearIdLoanReqDataState)
+//            } else {
+//                outputState = LoanVerificationState(amount, customerName, Bank, ourIdentity, loanEligibility, linearIdLoanReqDataState)
+//            }
+//            println(contains)
+
+
             // 3. Add command, signers as Bank and CRA
             println("Add command, signers as Bank and CRA")
             val transactionBuilder = TransactionBuilder(notary)
                     .addInputState(inputState)
                     .addOutputState(outputState, LoanVerificationContract.LOANVERIFICATION_CONTRACT_ID)
-                    .addCommand(LoanVerificationContract.Commands.ApprovalResponse(), ourIdentity.owningKey, outputState.Bank.owningKey)
+                    .addCommand(LoanVerificationContract.Commands.GenerateRating(customerName, cibilRating), listOf(oracle.owningKey, ourIdentity.owningKey))
 
             // Verify the transaction builder
             println("Verify the transaction builder")
@@ -72,10 +93,24 @@ object CRAResponse  {
             println("Sign the transaction")
             val partiallySignedTransaction = serviceHub.signInitialTransaction(transactionBuilder)
 
+
+            // Oracle Sign the transaction
+            println("Oracle Sign the transaction")
+            val ftx = partiallySignedTransaction.buildFilteredTransaction(Predicate {
+                when (it) {
+                    is Command<*> -> oracle.owningKey in it.signers && it.value is LoanVerificationContract.Commands.GenerateRating
+                    else -> false
+                }
+            })
+
+            val oracleSignature = subFlow(CRASignFlow(oracle, ftx))
+            val stx = partiallySignedTransaction.withAdditionalSignature(oracleSignature)
+
+
             // Send transaction to the seller node for signing
             println("Send transaction to the seller node for signing")
             val otherPartySession = initiateFlow(outputState.Bank)
-            val completelySignedTransaction = subFlow(CollectSignaturesFlow(partiallySignedTransaction, listOf(otherPartySession)))
+            val completelySignedTransaction = subFlow(CollectSignaturesFlow(stx, listOf(otherPartySession)))
 
             // Notarize and commit
             println("Notarize and commit")
