@@ -15,6 +15,7 @@ class LoanVerificationContract: Contract {
     interface Commands : CommandData {
         class SendForApproval : Commands, TypeOnlyCommandData()
         class ApprovalResponse : Commands, TypeOnlyCommandData()
+        class GenerateRating(val customerName: String, val cibilRating: Int) : TypeOnlyCommandData(), Commands
     }
 
     override fun verify(tx: LedgerTransaction) {
@@ -22,6 +23,7 @@ class LoanVerificationContract: Contract {
         when (command.value){
             is Commands.SendForApproval -> verifySendForApproval(tx, command)
             is Commands.ApprovalResponse -> verifyApprovalResponse(tx, command)
+            is Commands.GenerateRating -> verifyGenerateRating(tx, command)
         }
     }
 
@@ -60,6 +62,15 @@ class LoanVerificationContract: Contract {
             "bank must sign the transaction" using (command.signers.contains(inputState.CreditRatingAgency.owningKey))
             "creditAgency must sign the transaction" using (command.signers.contains(outputState.Bank.owningKey))
             null
+        }
+    }
+
+    private fun verifyGenerateRating(tx: LedgerTransaction, command: CommandWithParties<Commands>) {
+        val myRatingCommand = tx.commands.requireSingleCommand<Commands.GenerateRating>().value
+        requireThat {
+            "Transaction should have one input" using (tx.inputs.size == 1)
+            "Transaction should have one output" using (tx.outputs.size == 1)
+
         }
     }
 }
